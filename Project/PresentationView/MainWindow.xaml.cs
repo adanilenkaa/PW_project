@@ -16,9 +16,19 @@ namespace PresentationView
     /// </summary>
     public partial class MainWindow : Window
     {
+        public List<Point> InitialBallPositions { get; private set; }
+
         public MainWindow()
         {
             InitializeComponent();
+
+
+            InitialBallPositions = new List<Point>
+            {
+                new Point(10, 10),
+                new Point(50, 50),
+                new Point(100, 100)
+            };
         }
     }
 }
