@@ -1,0 +1,22 @@
+﻿################################################################################
+# Данный GITIGNORE-файл был автоматически создан Microsoft(R) Visual Studio.
+################################################################################
+
+/Project/.vs
+/.vs
+/Project/Data/obj
+/Project/Data/bin/Debug/net10.0
+/Project/DataTest/bin/Debug/net10.0
+/Project/DataTest/obj
+/Project/Logic/bin/Debug/net10.0
+/Project/Logic/obj/Debug/net10.0
+/Project/Logic/obj
+/Project/LogicTest/bin/Debug/net10.0
+/Project/LogicTest/obj
+/Project/Presentation/obj
+/Project/PresentationModel/bin/Debug/net10.0
+/Project/PresentationModel/obj
+/Project/PresentationView/bin/Debug/net10.0-windows
+/Project/PresentationView/obj
+/Project/PresentationViewModel/bin/Debug/net10.0
+/Project/PresentationViewModel/obj

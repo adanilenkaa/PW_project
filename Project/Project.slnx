@@ -1,0 +1,9 @@
+<Solution>
+  <Project Path="Data/Data.csproj" Id="0480e8a4-da8c-43aa-bcaf-739510c9856c" />
+  <Project Path="DataTest/DataTest.csproj" Id="7ff25e74-4322-4118-8819-ec5fe329c04b" />
+  <Project Path="Logic/Logic.csproj" Id="fad3a056-af32-42d9-b7bd-39b6b5869218" />
+  <Project Path="LogicTest/LogicTest.csproj" Id="bc5770ad-c8ea-47cf-8cf1-a7a9e6bcb358" />
+  <Project Path="PresentationModel/PresentationModel.csproj" Id="cb7aa7ea-1fcd-4dc2-a509-1efab076879b" />
+  <Project Path="PresentationView/PresentationView.csproj" Id="45d042d3-7c74-4061-9cdd-06654cd7aad4" />
+  <Project Path="PresentationViewModel/PresentationViewModel.csproj" Id="17f36f16-f954-4d88-b431-0c81d7a5fab9" />
+</Solution>
