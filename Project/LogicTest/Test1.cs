@@ -1,4 +1,4 @@
-﻿using Logic;
+﻿using Logic.Implementation;
 
 namespace BusinessLogicTest
 {
