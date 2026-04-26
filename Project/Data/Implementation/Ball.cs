@@ -7,7 +7,7 @@ using System.Text;
 
 namespace Data.Implementation
 {
-    internal class Ball : IBall
+    public class Ball : IBall
     {
         private double _x;
         private double _y;
@@ -16,8 +16,7 @@ namespace Data.Implementation
         private double _speedX;
         private double _speedY;
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
+        public event PropertyChangedEventHandler? PropertyChanged;
         public Ball(double x, double y, double rad, double speedX, double speedY)
         {
             _x = x;

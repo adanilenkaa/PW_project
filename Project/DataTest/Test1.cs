@@ -11,7 +11,7 @@ namespace DataTest
         [TestMethod]
         public void TestBallCreation()
         {
-            Ball ball = new Ball(5, 10);
+            Ball ball = new Ball(5, 10, 15, 2, 2);
 
             Assert.AreEqual(5, ball.X);
             Assert.AreEqual(10, ball.Y);

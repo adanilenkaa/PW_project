@@ -1,22 +1,24 @@
-﻿using Logic.Implementation;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Logic.Api;
+using System.Linq;
 
-namespace BusinessLogicTest
+namespace LogicTest
 {
     [TestClass]
-    public class Test1
+    public class LogicUnitTest
     {
         [TestMethod]
-        public void TestCreateBalls()
+        public void TestBallGeneration()
         {
+            // 1. Arrange: Tworzymy logikę, wstrzykując naszego Fake'a (Dependency Injection)
+            LogicApi api = LogicApi.CreateApi(new FakeDataApi());
 
-            LogicApi api = new LogicApi();
+            // 2. Act: Chcemy wygenerować 5 kul
+            api.GenerateBalls(5);
+            var balls = api.GetBalls();
 
-            var balls = api.CreateBalls();
-
-
-            Assert.HasCount(2, balls);
-            Assert.AreEqual(10, balls[0].X);
-            Assert.AreEqual(10, balls[0].Y);
+            // 3. Assert: Sprawdzamy, czy faktycznie jest ich 5
+            Assert.AreEqual(5, balls.Count());
         }
     }
 }

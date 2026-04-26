@@ -6,7 +6,7 @@ using Logic.Implementation;
 
 namespace Logic.Api
 {
-    internal abstract class LogicApi
+    public abstract class LogicApi
     {
         public abstract void GenerateBalls(int count);
 
