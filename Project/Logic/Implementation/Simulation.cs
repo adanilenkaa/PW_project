@@ -59,7 +59,7 @@ namespace Logic.Implementation
 
         private void MoveBalls(object state)
         {
-            foreach (var ball in _dataApi.GetBalls())
+            foreach (var ball in _dataApi.GetBalls().ToList())
             {
                 ball.Move(_dataApi.BoardWidth, _dataApi.BoardHeight);
             }
