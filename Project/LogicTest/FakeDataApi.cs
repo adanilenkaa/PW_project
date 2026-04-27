@@ -4,7 +4,6 @@ using System.ComponentModel;
 
 namespace LogicTest
 {
-    // To jest nasza atrapa warstwy danych. 
     internal class FakeDataApi : DataApi
     {
         public override double BoardWidth => 800;

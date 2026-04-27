@@ -20,3 +20,11 @@
 /Project/PresentationView/obj
 /Project/PresentationViewModel/bin/Debug/net10.0
 /Project/PresentationViewModel/obj
+/Project/PresentationViewModel/bin/Debug/net10.0-windows/Data.dll
+/Project/PresentationViewModel/bin/Debug/net10.0-windows/Data.pdb
+/Project/PresentationViewModel/bin/Debug/net10.0-windows/Logic.dll
+/Project/PresentationViewModel/bin/Debug/net10.0-windows/Logic.pdb
+/Project/PresentationViewModel/bin/Debug/net10.0-windows/PresentationModel.dll
+/Project/PresentationViewModel/bin/Debug/net10.0-windows/PresentationModel.pdb
+/Project/PresentationViewModel/bin/Debug/net10.0-windows/PresentationViewModel.dll
+/Project/PresentationViewModel/bin/Debug/net10.0-windows/PresentationViewModel.pdb

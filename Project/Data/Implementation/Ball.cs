@@ -7,7 +7,7 @@ using System.Text;
 
 namespace Data.Implementation
 {
-    public class Ball : IBall
+    internal class Ball : IBall
     {
         private double _x;
         private double _y;

@@ -1,13 +1,13 @@
 ﻿using Logic.Api;
 using System.Collections.Generic;
 
-namespace Presentation.Model
+namespace PresentationModel
 {
     public abstract class ModelApi
     {
         public abstract void Start(int ballCount);
         public abstract void Stop();
-        public abstract IEnumerable<object> GetBalls();
+        public abstract IEnumerable<BallModel> GetBalls();
 
         public static ModelApi CreateApi(LogicApi logicApi = null)
         {
@@ -18,7 +18,6 @@ namespace Presentation.Model
     internal class ModelImplementation : ModelApi
     {
         private readonly LogicApi _logicApi;
-
         public ModelImplementation(LogicApi logicApi)
         {
             _logicApi = logicApi;
@@ -32,6 +31,14 @@ namespace Presentation.Model
 
         public override void Stop() => _logicApi.Stop();
 
-        public override IEnumerable<object> GetBalls() => _logicApi.GetBalls();
+        public override IEnumerable<BallModel> GetBalls()
+        {
+            var visualBalls = new List<BallModel>();
+            foreach (var ball in _logicApi.GetBalls())
+            {
+                visualBalls.Add(new BallModel(ball)); 
+            }
+            return visualBalls;
+        }
     }
 }
