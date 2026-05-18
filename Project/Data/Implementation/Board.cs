@@ -14,7 +14,8 @@ namespace Data.Implementation
 
         public override IBall CreateBall(double x, double y, double rad, double speedX, double speedY)
         {
-            var ball = new Ball(x, y, rad, speedX, speedY);
+            // Dodajemy masę (np. 1.0) jako ostatni parametr
+            var ball = new Ball(x, y, rad, speedX, speedY, 1.0);
             _balls.Add(ball);
             return ball;
         }

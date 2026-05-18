@@ -1,9 +1,8 @@
 ﻿using Data.API;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Text;
+using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace Data.Implementation
 {
@@ -11,64 +10,60 @@ namespace Data.Implementation
     {
         private double _x;
         private double _y;
-        public double Rad { get;}
-
         private double _speedX;
         private double _speedY;
+        private bool _stop = false;
+        private Task _task;
 
         public event PropertyChangedEventHandler? PropertyChanged;
-        public Ball(double x, double y, double rad, double speedX, double speedY)
+
+        public Ball(double x, double y, double rad, double speedX, double speedY, double weight)
         {
             _x = x;
             _y = y;
             Rad = rad;
             _speedX = speedX;
             _speedY = speedY;
+            Weight = weight;
         }
 
-        public double X
+        public double X { get => _x; private set { _x = value; OnPropertyChanged(); } }
+        public double Y { get => _y; private set { _y = value; OnPropertyChanged(); } }
+        public double Rad { get; }
+        public double Weight { get; }
+        public double SpeedX { get => _speedX; set => _speedX = value; }
+        public double SpeedY { get => _speedY; set => _speedY = value; }
+
+        // Każda kula ma swoją własną pętlę w osobnym wątku
+        public void CreateTask(int interval)
         {
-            get => _x;
-            private set
+            _stop = false;
+            _task = Task.Run(async () =>
             {
-                if (_x == value) return;
-                _x = value;
-                OnPropertyChanged();
-            }
+                while (!_stop)
+                {
+                    Stopwatch sw = Stopwatch.StartNew();
+                    Move();
+                    sw.Stop();
+
+                    // Czekamy tyle, ile zostało do pełnego interwału
+                    int sleepTime = interval - (int)sw.ElapsedMilliseconds;
+                    if (sleepTime > 0) await Task.Delay(sleepTime);
+                }
+            });
         }
 
-        public double Y
+        public void StopTask() => _stop = true;
+
+        private void Move()
         {
-            get => _y;
-            private set
-            {
-                if (_y == value) return;
-                _y = value;
-                OnPropertyChanged();
-            }
+            X += SpeedX;
+            Y += SpeedY;
         }
 
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        public void Move(double boardWidth, double boardHeight)
-        {
-            double newX = X + _speedX;
-            double newY = Y + _speedY;
-            if (newX - Rad < 0 || newX + Rad > boardWidth)
-            {
-                _speedX = -_speedX;
-                newX = X + _speedX;
-            }
-            if (newY - Rad < 0 || newY + Rad > boardHeight)
-            {
-                _speedY = -_speedY;
-                newY = Y + _speedY;
-            }
-            X = newX;
-            Y = newY;
         }
     }
 }
