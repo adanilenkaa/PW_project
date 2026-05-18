@@ -2,7 +2,8 @@
 using Data.Implementation;
 using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace DataTest
 {
@@ -31,6 +32,41 @@ namespace DataTest
             api.ClearBalls();
 
             Assert.AreEqual(0, api.GetBalls().Count());
+        }
+
+        [TestMethod]
+        public void TestThreadSafeSpeedAccess()
+        {
+            DataApi api = DataApi.Create();
+            IBall ball = api.CreateBall(100, 100, 15, 5, 5);
+
+            int readCount = 0;
+            int writeCount = 0;
+
+            var readTask = Task.Run(() =>
+            {
+                for (int i = 0; i < 100; i++)
+                {
+                    var speedX = ball.SpeedX;
+                    var speedY = ball.SpeedY;
+                    readCount++;
+                }
+            });
+
+            var writeTask = Task.Run(() =>
+            {
+                for (int i = 0; i < 100; i++)
+                {
+                    ball.SpeedX = 3 + i;
+                    ball.SpeedY = 4 + i;
+                    writeCount++;
+                }
+            });
+
+            Task.WaitAll(readTask, writeTask);
+
+            Assert.AreEqual(100, readCount, "Should complete all reads without exception");
+            Assert.AreEqual(100, writeCount, "Should complete all writes without exception");
         }
     }
 }

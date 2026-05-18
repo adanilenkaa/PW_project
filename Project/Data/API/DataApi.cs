@@ -9,7 +9,7 @@ namespace Data.API
     {
         public abstract double BoardWidth { get; }
         public abstract double BoardHeight { get; }
-        public abstract IBall CreateBall(double x, double y, double rad, double speedX, double speedY);
+        public abstract IBall CreateBall(double x, double y, double rad, double speedX, double speedY, double weight = 1.0);
         public abstract IEnumerable<IBall> GetBalls();
         public abstract void ClearBalls();
 

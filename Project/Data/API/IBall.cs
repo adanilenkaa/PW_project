@@ -7,12 +7,11 @@ namespace Data.API
         double X { get; }
         double Y { get; }
         double Rad { get; }
-        double Weight { get; } 
+        double Weight { get; }
         double SpeedX { get; set; }
         double SpeedY { get; set; }
 
-        // Metody sterujące autonomicznym ruchem kuli
-        void CreateTask(int interval);
-        void StopTask();
+        void StartMovement(int interval, double boardWidth, double boardHeight);
+        void StopMovement();
     }
 }

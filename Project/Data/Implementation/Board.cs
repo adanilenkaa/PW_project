@@ -12,10 +12,9 @@ namespace Data.Implementation
 
         private readonly List<IBall> _balls = new List<IBall>();
 
-        public override IBall CreateBall(double x, double y, double rad, double speedX, double speedY)
+        public override IBall CreateBall(double x, double y, double rad, double speedX, double speedY, double weight = 1.0)
         {
-            // Dodajemy masę (np. 1.0) jako ostatni parametr
-            var ball = new Ball(x, y, rad, speedX, speedY, 1.0);
+            var ball = new Ball(x, y, rad, speedX, speedY, weight);
             _balls.Add(ball);
             return ball;
         }

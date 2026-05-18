@@ -11,6 +11,7 @@ namespace Logic.Implementation
     {
         private readonly DataApi _dataApi;
         private readonly object _collisionLock = new object();
+        private readonly HashSet<IBall> _activeBalls = new HashSet<IBall>();
 
         public Simulation(DataApi dataApi)
         {
@@ -37,8 +38,9 @@ namespace Logic.Implementation
         {
             foreach (var ball in _dataApi.GetBalls())
             {
+                _activeBalls.Add(ball);
                 ball.PropertyChanged += OnBallPropertyChanged;
-                ball.CreateTask(16);
+                ball.StartMovement(16, _dataApi.BoardWidth, _dataApi.BoardHeight);
             }
         }
 
@@ -46,8 +48,10 @@ namespace Logic.Implementation
         {
             foreach (var ball in _dataApi.GetBalls())
             {
-                ball.StopTask();
+                ball.StopMovement();
+                ball.PropertyChanged -= OnBallPropertyChanged;
             }
+            _activeBalls.Clear();
         }
 
         private void OnBallPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -57,18 +61,9 @@ namespace Logic.Implementation
             {
                 lock (_collisionLock)
                 {
-                    CheckWallCollision(ball);
                     CheckBallCollision(ball);
                 }
             }
-        }
-
-        private void CheckWallCollision(IBall ball)
-        {
-            if (ball.X - ball.Rad <= 0 && ball.SpeedX < 0) ball.SpeedX = -ball.SpeedX;
-            if (ball.X + ball.Rad >= _dataApi.BoardWidth && ball.SpeedX > 0) ball.SpeedX = -ball.SpeedX;
-            if (ball.Y - ball.Rad <= 0 && ball.SpeedY < 0) ball.SpeedY = -ball.SpeedY;
-            if (ball.Y + ball.Rad >= _dataApi.BoardHeight && ball.SpeedY > 0) ball.SpeedY = -ball.SpeedY;
         }
 
         private void CheckBallCollision(IBall ball)
@@ -77,17 +72,19 @@ namespace Logic.Implementation
             {
                 if (ball == other) continue;
 
-                double dx = ball.X - other.X;
-                double dy = ball.Y - other.Y;
+                double dx = other.X - ball.X;
+                double dy = other.Y - ball.Y;
                 double distance = Math.Sqrt(dx * dx + dy * dy);
 
                 if (distance <= ball.Rad + other.Rad)
                 {
-                    double nextDx = (ball.X + ball.SpeedX) - (other.X + other.SpeedX);
-                    double nextDy = (ball.Y + ball.SpeedY) - (other.Y + other.SpeedY);
-                    double nextDistance = Math.Sqrt(nextDx * nextDx + nextDy * nextDy);
+                    double dvx = other.SpeedX - ball.SpeedX;
+                    double dvy = other.SpeedY - ball.SpeedY;
 
-                    if (nextDistance < distance)
+                    double dotProduct = dx * dvx + dy * dvy;
+
+               
+                    if (dotProduct < 0)
                     {
                         double m1 = ball.Weight;
                         double m2 = other.Weight;
