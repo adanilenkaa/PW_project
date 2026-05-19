@@ -72,37 +72,41 @@ namespace Logic.Implementation
             {
                 if (ball == other) continue;
 
-                double dx = other.X - ball.X;
-                double dy = other.Y - ball.Y;
-                double distance = Math.Sqrt(dx * dx + dy * dy);
+                double dx = ball.X - other.X;
+                double dy = ball.Y - other.Y;
+
+                double distanceSq = dx * dx + dy * dy;
+                double distance = Math.Sqrt(distanceSq);
 
                 if (distance <= ball.Rad + other.Rad)
                 {
-                    double dvx = other.SpeedX - ball.SpeedX;
-                    double dvy = other.SpeedY - ball.SpeedY;
+                    if (distanceSq == 0) distanceSq = 0.0001;
 
-                    double dotProduct = dx * dvx + dy * dvy;
+                    double dvx = ball.SpeedX - other.SpeedX;
+                    double dvy = ball.SpeedY - other.SpeedY;
 
-               
+                    double dotProduct = dvx * dx + dvy * dy;
+
                     if (dotProduct < 0)
                     {
                         double m1 = ball.Weight;
                         double m2 = other.Weight;
 
-                        double v1x = ball.SpeedX;
-                        double v1y = ball.SpeedY;
-                        double v2x = other.SpeedX;
-                        double v2y = other.SpeedY;
+                        double collisionScale1 = (2 * m2 / (m1 + m2)) * (dotProduct / distanceSq);
 
-                        ball.SpeedX = ((m1 - m2) * v1x + 2 * m2 * v2x) / (m1 + m2);
-                        ball.SpeedY = ((m1 - m2) * v1y + 2 * m2 * v2y) / (m1 + m2);
+                        double collisionScale2 = (2 * m1 / (m1 + m2)) * (dotProduct / distanceSq);
 
-                        other.SpeedX = ((m2 - m1) * v2x + 2 * m1 * v1x) / (m1 + m2);
-                        other.SpeedY = ((m2 - m1) * v2y + 2 * m1 * v1y) / (m1 + m2);
+                        ball.SpeedX -= collisionScale1 * dx;
+                        ball.SpeedY -= collisionScale1 * dy;
+
+                        other.SpeedX -= collisionScale2 * (-dx);
+                        other.SpeedY -= collisionScale2 * (-dy);
                     }
                 }
             }
         }
+
+
 
         public override IEnumerable<IBall> GetBalls() => _dataApi.GetBalls();
         public override double GetBoardWidth() => _dataApi.BoardWidth;
