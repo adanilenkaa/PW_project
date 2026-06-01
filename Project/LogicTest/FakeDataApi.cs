@@ -19,6 +19,10 @@ namespace LogicTest
 
         public override IEnumerable<IBall> GetBalls() => _balls;
         public override void ClearBalls() => _balls.Clear();
+
+        
+        public override void StartLogging() { }
+        public override void StopLogging() { }
     }
 
     internal class FakeBall : IBall

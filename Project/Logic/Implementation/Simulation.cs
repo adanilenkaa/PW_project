@@ -42,10 +42,12 @@ namespace Logic.Implementation
                 ball.PropertyChanged += OnBallPropertyChanged;
                 ball.StartMovement(16, _dataApi.BoardWidth, _dataApi.BoardHeight);
             }
+            _dataApi.StartLogging(); 
         }
 
         public override void Stop()
         {
+            _dataApi.StopLogging(); 
             foreach (var ball in _dataApi.GetBalls())
             {
                 ball.StopMovement();

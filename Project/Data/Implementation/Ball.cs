@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace Data.Implementation
 {
@@ -75,10 +76,21 @@ namespace Data.Implementation
             _stop = false;
             _task = Task.Run(async () =>
             {
+                Stopwatch realTimeClock = Stopwatch.StartNew();
+                double lastTime = 0;
+
                 while (!_stop)
                 {
-                    var sw = System.Diagnostics.Stopwatch.StartNew();
-                    Move();
+                    var sw = Stopwatch.StartNew();
+
+                    // Obliczanie fizycznego upływu czasu (Real-time Programming)
+                    double currentTime = realTimeClock.Elapsed.TotalSeconds;
+                    double deltaTime = currentTime - lastTime;
+                    lastTime = currentTime;
+
+                    
+                    Move(deltaTime);
+
                     sw.Stop();
 
                     int sleepTime = interval - (int)sw.ElapsedMilliseconds;
@@ -89,19 +101,39 @@ namespace Data.Implementation
 
         public void StopMovement() => _stop = true;
 
-        private void Move()
+        
+        private void Move(double deltaTime)
         {
-            double newX = X + SpeedX;
-            double newY = Y + SpeedY;
-            if (newX - Rad < 0 || newX + Rad > _boardWidth)
+          
+            double timeFactor = deltaTime * 60;
+
+            double currentSpeedX = SpeedX;
+            double currentSpeedY = SpeedY;
+
+            double newX = X + (currentSpeedX * timeFactor);
+            double newY = Y + (currentSpeedY * timeFactor);
+
+            
+            if (newX - Rad < 0)
             {
-                SpeedX = -SpeedX;
-                newX = X + SpeedX;
+                SpeedX = Math.Abs(currentSpeedX);
+                newX = Rad;
             }
-            if (newY - Rad < 0 || newY + Rad > _boardHeight)
+            else if (newX + Rad > _boardWidth)
             {
-                SpeedY = -SpeedY;
-                newY = Y + SpeedY;
+                SpeedX = -Math.Abs(currentSpeedX);
+                newX = _boardWidth - Rad;
+            }
+
+            if (newY - Rad < 0)
+            {
+                SpeedY = Math.Abs(currentSpeedY);
+                newY = Rad;
+            }
+            else if (newY + Rad > _boardHeight)
+            {
+                SpeedY = -Math.Abs(currentSpeedY);
+                newY = _boardHeight - Rad;
             }
 
             X = newX;

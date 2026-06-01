@@ -13,10 +13,13 @@ namespace Data.API
         public abstract IEnumerable<IBall> GetBalls();
         public abstract void ClearBalls();
 
+        
+        public abstract void StartLogging();
+        public abstract void StopLogging();
+
         public static DataApi Create()
         {
             return new Board();
         }
-
     }
 }
