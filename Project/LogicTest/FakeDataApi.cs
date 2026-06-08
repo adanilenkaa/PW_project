@@ -20,9 +20,8 @@ namespace LogicTest
         public override IEnumerable<IBall> GetBalls() => _balls;
         public override void ClearBalls() => _balls.Clear();
 
-        
-        public override void StartLogging() { }
-        public override void StopLogging() { }
+        public override void StartDiagnosticLogging(string filePath) { }
+        public override void StopDiagnosticLogging() { }
     }
 
     internal class FakeBall : IBall
@@ -44,6 +43,12 @@ namespace LogicTest
             SpeedX = sx;
             SpeedY = sy;
             Weight = weight;
+        }
+
+        public void SetPosition(double x, double y)
+        {
+            X = x;
+            Y = y;
         }
 
         public void StartMovement(int interval, double boardWidth, double boardHeight) { }

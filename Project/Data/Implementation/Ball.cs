@@ -1,10 +1,8 @@
 ﻿using Data.API;
-using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Diagnostics;
 
 namespace Data.Implementation
 {
@@ -17,6 +15,7 @@ namespace Data.Implementation
         private bool _stop = false;
         private Task _task;
         private readonly ReaderWriterLockSlim _speedLock = new ReaderWriterLockSlim();
+        private readonly object _positionLock = new object();
         private double _boardWidth;
         private double _boardHeight;
 
@@ -32,41 +31,21 @@ namespace Data.Implementation
             Weight = weight;
         }
 
-        public double X { get => _x; private set { if (_x != value) { _x = value; OnPropertyChanged(); } } }
-        public double Y { get => _y; private set { if (_y != value) { _y = value; OnPropertyChanged(); } } }
+        public double X { get { lock (_positionLock) return _x; } }
+        public double Y { get { lock (_positionLock) return _y; } }
         public double Rad { get; }
         public double Weight { get; }
 
         public double SpeedX
         {
-            get
-            {
-                _speedLock.EnterReadLock();
-                try { return _speedX; }
-                finally { _speedLock.ExitReadLock(); }
-            }
-            set
-            {
-                _speedLock.EnterWriteLock();
-                try { _speedX = value; }
-                finally { _speedLock.ExitWriteLock(); }
-            }
+            get { _speedLock.EnterReadLock(); try { return _speedX; } finally { _speedLock.ExitReadLock(); } }
+            set { _speedLock.EnterWriteLock(); try { _speedX = value; } finally { _speedLock.ExitWriteLock(); } }
         }
 
         public double SpeedY
         {
-            get
-            {
-                _speedLock.EnterReadLock();
-                try { return _speedY; }
-                finally { _speedLock.ExitReadLock(); }
-            }
-            set
-            {
-                _speedLock.EnterWriteLock();
-                try { _speedY = value; }
-                finally { _speedLock.ExitWriteLock(); }
-            }
+            get { _speedLock.EnterReadLock(); try { return _speedY; } finally { _speedLock.ExitReadLock(); } }
+            set { _speedLock.EnterWriteLock(); try { _speedY = value; } finally { _speedLock.ExitWriteLock(); } }
         }
 
         public void StartMovement(int interval, double boardWidth, double boardHeight)
@@ -76,22 +55,13 @@ namespace Data.Implementation
             _stop = false;
             _task = Task.Run(async () =>
             {
-                Stopwatch realTimeClock = Stopwatch.StartNew();
-                double lastTime = 0;
-
+                var sw = System.Diagnostics.Stopwatch.StartNew();
                 while (!_stop)
                 {
-                    var sw = Stopwatch.StartNew();
+                    double deltaTime = sw.Elapsed.TotalSeconds;
+                    sw.Restart();
 
-                    // Obliczanie fizycznego upływu czasu (Real-time Programming)
-                    double currentTime = realTimeClock.Elapsed.TotalSeconds;
-                    double deltaTime = currentTime - lastTime;
-                    lastTime = currentTime;
-
-                    
                     Move(deltaTime);
-
-                    sw.Stop();
 
                     int sleepTime = interval - (int)sw.ElapsedMilliseconds;
                     if (sleepTime > 0) await Task.Delay(sleepTime);
@@ -101,43 +71,47 @@ namespace Data.Implementation
 
         public void StopMovement() => _stop = true;
 
-        
+        public void SetPosition(double x, double y)
+        {
+            lock (_positionLock)
+            {
+                _x = x;
+                _y = y;
+            }
+            OnPropertyChanged(nameof(X));
+            OnPropertyChanged(nameof(Y));
+        }
+
         private void Move(double deltaTime)
         {
-          
-            double timeFactor = deltaTime * 60;
+            if (deltaTime > 0.05) deltaTime = 0.05;
 
-            double currentSpeedX = SpeedX;
-            double currentSpeedY = SpeedY;
+            double newX, newY;
+            lock (_positionLock)
+            {
+                double vx = SpeedX;
+                double vy = SpeedY;
 
-            double newX = X + (currentSpeedX * timeFactor);
-            double newY = Y + (currentSpeedY * timeFactor);
+                newX = _x + vx * deltaTime;
+                newY = _y + vy * deltaTime;
 
-            
-            if (newX - Rad < 0)
-            {
-                SpeedX = Math.Abs(currentSpeedX);
-                newX = Rad;
-            }
-            else if (newX + Rad > _boardWidth)
-            {
-                SpeedX = -Math.Abs(currentSpeedX);
-                newX = _boardWidth - Rad;
-            }
+                if (newX - Rad < 0 || newX + Rad > _boardWidth)
+                {
+                    SpeedX = -vx;
+                    newX = _x + SpeedX * deltaTime;
+                }
+                if (newY - Rad < 0 || newY + Rad > _boardHeight)
+                {
+                    SpeedY = -vy;
+                    newY = _y + SpeedY * deltaTime;
+                }
 
-            if (newY - Rad < 0)
-            {
-                SpeedY = Math.Abs(currentSpeedY);
-                newY = Rad;
-            }
-            else if (newY + Rad > _boardHeight)
-            {
-                SpeedY = -Math.Abs(currentSpeedY);
-                newY = _boardHeight - Rad;
+                _x = newX;
+                _y = newY;
             }
 
-            X = newX;
-            Y = newY;
+            OnPropertyChanged(nameof(X));
+            OnPropertyChanged(nameof(Y));
         }
 
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)

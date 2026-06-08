@@ -68,6 +68,22 @@ namespace DataTest
             Assert.AreEqual(100, readCount, "Should complete all reads without exception");
             Assert.AreEqual(100, writeCount, "Should complete all writes without exception");
         }
+
+        [TestMethod]
+        public void TestDiagnosticLoggingDoesNotThrow()
+        {
+            DataApi api = DataApi.Create();
+            IBall ball = api.CreateBall(10, 10, 15, 2, 2);
+
+            string tempPath = System.IO.Path.GetTempFileName();
+            api.StartDiagnosticLogging(tempPath);
+
+            System.Threading.Thread.Sleep(200);
+
+            api.StopDiagnosticLogging();
+
+             Assert.IsTrue(System.IO.File.Exists(tempPath));
+        }
     }
 }
 

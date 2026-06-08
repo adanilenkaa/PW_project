@@ -1,7 +1,4 @@
-﻿using Data.Implementation;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace Data.API
 {
@@ -13,13 +10,12 @@ namespace Data.API
         public abstract IEnumerable<IBall> GetBalls();
         public abstract void ClearBalls();
 
-        
-        public abstract void StartLogging();
-        public abstract void StopLogging();
+        public abstract void StartDiagnosticLogging(string filePath);
+        public abstract void StopDiagnosticLogging();
 
         public static DataApi Create()
         {
-            return new Board();
+            return new Implementation.Board();
         }
     }
 }

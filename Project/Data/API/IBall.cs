@@ -13,5 +13,7 @@ namespace Data.API
 
         void StartMovement(int interval, double boardWidth, double boardHeight);
         void StopMovement();
+
+        void SetPosition(double x, double y);
     }
 }
