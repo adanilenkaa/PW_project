@@ -11,6 +11,7 @@ namespace Data.API
         double SpeedX { get; set; }
         double SpeedY { get; set; }
 
+        string Color { get; }
 
         void StartMovement(int interval, double boardWidth, double boardHeight);
         void StopMovement();

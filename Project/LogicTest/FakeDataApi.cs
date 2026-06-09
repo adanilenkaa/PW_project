@@ -33,6 +33,8 @@ namespace LogicTest
         public double SpeedX { get; set; }
         public double SpeedY { get; set; }
 
+        public string Color { get; set; } = "Red";
+
         public event PropertyChangedEventHandler? PropertyChanged;
 
         public FakeBall(double x, double y, double rad, double sx, double sy, double weight = 1.0)

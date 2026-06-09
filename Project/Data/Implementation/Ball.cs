@@ -1,8 +1,8 @@
 ﻿using Data.API;
+using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Data.Implementation
 {
@@ -12,14 +12,19 @@ namespace Data.Implementation
         private double _y;
         private double _speedX;
         private double _speedY;
+        private string _color;
+
+        private Timer _timer;
+        private int _updateInterval;
+        private int _timeSinceColorChange = 0; 
 
         private readonly ReaderWriterLockSlim _speedLock = new ReaderWriterLockSlim();
         private readonly object _positionLock = new object();
         private double _boardWidth;
         private double _boardHeight;
 
-        private Timer _timer;
-        private readonly System.Diagnostics.Stopwatch _stopwatch = new System.Diagnostics.Stopwatch();
+        private static readonly string[] Colors = { "Red", "Blue", "Green", "Yellow", "Purple", "Orange", "Cyan", "Magenta" };
+        private readonly Random _random = new Random();
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -31,12 +36,26 @@ namespace Data.Implementation
             _speedX = speedX;
             _speedY = speedY;
             Weight = weight;
+            _color = Colors[_random.Next(Colors.Length)];
         }
 
         public double X { get { lock (_positionLock) return _x; } }
         public double Y { get { lock (_positionLock) return _y; } }
         public double Rad { get; }
         public double Weight { get; }
+
+        public string Color
+        {
+            get => _color;
+            private set
+            {
+                if (_color != value)
+                {
+                    _color = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
 
         public double SpeedX
         {
@@ -54,34 +73,32 @@ namespace Data.Implementation
         {
             _boardWidth = boardWidth;
             _boardHeight = boardHeight;
+            _updateInterval = interval;
 
-            _stopwatch.Start();
-            _timer = new Timer(TimerCaller, null, 0, interval);
+            _timer = new Timer(TimerCallback, null, 0, interval);
         }
+
         public void StopMovement()
         {
             _timer?.Dispose();
-            _stopwatch.Stop();
         }
 
-
-        private void TimerCaller(object state)
+        private void TimerCallback(object state)
         {
-            double deltaTime = _stopwatch.Elapsed.TotalSeconds;
-            _stopwatch.Restart();
+            Move(); 
 
-            if (deltaTime > 0.05) deltaTime = 0.05;
+            _timeSinceColorChange += _updateInterval;
 
-            Move(deltaTime);
+            if (_timeSinceColorChange >= 2000)
+            {
+                Color = Colors[_random.Next(Colors.Length)];
+                _timeSinceColorChange = 0;
+            }
         }
 
         public void SetPosition(double x, double y)
         {
-            lock (_positionLock)
-            {
-                _x = x;
-                _y = y;
-            }
+            lock (_positionLock) { _x = x; _y = y; }
             OnPropertyChanged(nameof(X));
             OnPropertyChanged(nameof(Y));
         }
@@ -89,18 +106,13 @@ namespace Data.Implementation
         public void SetSpeed(double vx, double vy)
         {
             _speedLock.EnterWriteLock();
-            try
-            {
-                _speedX = vx;
-                _speedY = vy;
-            }
+            try { _speedX = vx; _speedY = vy; }
             finally { _speedLock.ExitWriteLock(); }
         }
 
-        private void Move(double deltaTime)
+        private void Move()
         {
             double currentVx, currentVy;
-
             _speedLock.EnterReadLock();
             try
             {
@@ -110,21 +122,20 @@ namespace Data.Implementation
             finally { _speedLock.ExitReadLock(); }
 
             double newX, newY;
-
             lock (_positionLock)
             {
-                newX = _x + currentVx * deltaTime;
-                newY = _y + currentVy * deltaTime;
+                newX = _x + currentVx;
+                newY = _y + currentVy;
 
                 if (newX - Rad < 0 || newX + Rad > _boardWidth)
                 {
                     SetSpeed(-currentVx, currentVy);
-                    newX = _x - currentVx * deltaTime;
+                    newX = _x - currentVx;
                 }
                 if (newY - Rad < 0 || newY + Rad > _boardHeight)
                 {
                     SetSpeed(currentVx, -currentVy);
-                    newY = _y - currentVy * deltaTime;
+                    newY = _y - currentVy;
                 }
 
                 _x = newX;

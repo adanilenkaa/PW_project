@@ -10,6 +10,11 @@ namespace PresentationModel
         private double _canvasWidth = 800;
         private double _canvasHeight = 600;
 
+        public string Color
+        {
+            get => _ball.Color;
+        }
+
         public BallModel(IBall ball, double canvasWidth = 800, double canvasHeight = 600)
         {
             _ball = ball;
@@ -20,6 +25,8 @@ namespace PresentationModel
             {
                 if (args.PropertyName == nameof(IBall.X)) OnPropertyChanged(nameof(Left));
                 if (args.PropertyName == nameof(IBall.Y)) OnPropertyChanged(nameof(Top));
+                if (args.PropertyName == nameof(IBall.Color)) OnPropertyChanged(nameof(Color));
+            
             };
         }
 

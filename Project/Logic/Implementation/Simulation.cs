@@ -52,8 +52,8 @@ namespace Logic.Implementation
                     attempts++;
                 }
 
-                double sx = (random.NextDouble() - 0.5) * 4 * 60;
-                double sy = (random.NextDouble() - 0.5) * 4 * 60;
+                double sx = (random.NextDouble() - 0.5) * 4;
+                double sy = (random.NextDouble() - 0.5) * 4;
 
                 _dataApi.CreateBall(x, y, rad, sx, sy);
                 tempBallsList.Add((x, y, rad));
