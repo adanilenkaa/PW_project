@@ -145,11 +145,8 @@ namespace Logic.Implementation
                         double collisionScale1 = (2 * other.Weight / totalMass) * (dotProduct / distanceSq);
                         double collisionScale2 = (2 * ball.Weight / totalMass) * (dotProduct / distanceSq);
 
-                        ball.SpeedX -= collisionScale1 * dx;
-                        ball.SpeedY -= collisionScale1 * dy;
-
-                        other.SpeedX -= collisionScale2 * (-dx);
-                        other.SpeedY -= collisionScale2 * (-dy);
+                        ball.SetSpeed(ball.SpeedX - collisionScale1 * dx, ball.SpeedY - collisionScale1 * dy);
+                        other.SetSpeed(other.SpeedX - collisionScale2 * (-dx), other.SpeedY - collisionScale2 * (-dy));
                     }
                 }
             }

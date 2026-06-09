@@ -12,12 +12,14 @@ namespace Data.Implementation
         private double _y;
         private double _speedX;
         private double _speedY;
-        private bool _stop = false;
-        private Task _task;
+
         private readonly ReaderWriterLockSlim _speedLock = new ReaderWriterLockSlim();
         private readonly object _positionLock = new object();
         private double _boardWidth;
         private double _boardHeight;
+
+        private Timer _timer;
+        private readonly System.Diagnostics.Stopwatch _stopwatch = new System.Diagnostics.Stopwatch();
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -52,24 +54,26 @@ namespace Data.Implementation
         {
             _boardWidth = boardWidth;
             _boardHeight = boardHeight;
-            _stop = false;
-            _task = Task.Run(async () =>
-            {
-                var sw = System.Diagnostics.Stopwatch.StartNew();
-                while (!_stop)
-                {
-                    double deltaTime = sw.Elapsed.TotalSeconds;
-                    sw.Restart();
 
-                    Move(deltaTime);
-
-                    int sleepTime = interval - (int)sw.ElapsedMilliseconds;
-                    if (sleepTime > 0) await Task.Delay(sleepTime);
-                }
-            });
+            _stopwatch.Start();
+            _timer = new Timer(TimerCaller, null, 0, interval);
+        }
+        public void StopMovement()
+        {
+            _timer?.Dispose();
+            _stopwatch.Stop();
         }
 
-        public void StopMovement() => _stop = true;
+
+        private void TimerCaller(object state)
+        {
+            double deltaTime = _stopwatch.Elapsed.TotalSeconds;
+            _stopwatch.Restart();
+
+            if (deltaTime > 0.05) deltaTime = 0.05;
+
+            Move(deltaTime);
+        }
 
         public void SetPosition(double x, double y)
         {
@@ -82,28 +86,45 @@ namespace Data.Implementation
             OnPropertyChanged(nameof(Y));
         }
 
+        public void SetSpeed(double vx, double vy)
+        {
+            _speedLock.EnterWriteLock();
+            try
+            {
+                _speedX = vx;
+                _speedY = vy;
+            }
+            finally { _speedLock.ExitWriteLock(); }
+        }
+
         private void Move(double deltaTime)
         {
-            if (deltaTime > 0.05) deltaTime = 0.05;
+            double currentVx, currentVy;
+
+            _speedLock.EnterReadLock();
+            try
+            {
+                currentVx = _speedX;
+                currentVy = _speedY;
+            }
+            finally { _speedLock.ExitReadLock(); }
 
             double newX, newY;
+
             lock (_positionLock)
             {
-                double vx = SpeedX;
-                double vy = SpeedY;
-
-                newX = _x + vx * deltaTime;
-                newY = _y + vy * deltaTime;
+                newX = _x + currentVx * deltaTime;
+                newY = _y + currentVy * deltaTime;
 
                 if (newX - Rad < 0 || newX + Rad > _boardWidth)
                 {
-                    SpeedX = -vx;
-                    newX = _x + SpeedX * deltaTime;
+                    SetSpeed(-currentVx, currentVy);
+                    newX = _x - currentVx * deltaTime;
                 }
                 if (newY - Rad < 0 || newY + Rad > _boardHeight)
                 {
-                    SpeedY = -vy;
-                    newY = _y + SpeedY * deltaTime;
+                    SetSpeed(currentVx, -currentVy);
+                    newY = _y - currentVy * deltaTime;
                 }
 
                 _x = newX;

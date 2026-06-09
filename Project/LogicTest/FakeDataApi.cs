@@ -51,6 +51,12 @@ namespace LogicTest
             Y = y;
         }
 
+        public void SetSpeed(double vx, double vy)
+        {
+            SpeedX = vx;
+            SpeedY = vy;
+        }
+
         public void StartMovement(int interval, double boardWidth, double boardHeight) { }
         public void StopMovement() { }
 
